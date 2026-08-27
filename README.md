@@ -70,6 +70,14 @@ Tandem Browser now supports:
 - remote HTTP over Tailscale
 - multiple agents connected to the same browser at once
 - in-product pairing and onboarding through **Settings -> Connected Agents**
+- metadata-only discovery and exact-name selection proof for existing Chrome
+  profiles through `GET /profiles`, `POST /profiles/select`, and
+  `tandem profile`
+
+The Chrome profile feature does not attach Tandem to an existing Chrome
+profile or provide authenticated control. Tandem reports the matched profile
+directory and its control boundary explicitly; its Electron webviews continue
+to use Tandem-owned sessions.
 
 Want the fastest path in?
 - **Try Tandem locally** -> [Quick Start](#quick-start)

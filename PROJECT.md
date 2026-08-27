@@ -242,6 +242,7 @@ Current route modules:
 - `extensions.ts` — extension management and helper routes
 - `network.ts` — mocking and network tooling
 - `sessions.ts` — isolated sessions, session fetch relay, saved session state
+- `profiles.ts` — metadata-only Chrome profile discovery and selection proof
 - `agents.ts` — agent workflow endpoints
 - `data.ts` — bookmarks, history, downloads, and import/export surfaces
 - `content.ts` — content extraction and page-to-markdown style helpers
@@ -273,6 +274,7 @@ src/tabs/manager.ts            Tab management
 src/sidebar/manager.ts         Sidebar config + state
 src/workspaces/manager.ts      Workspace CRUD + tab mapping
 src/sessions/manager.ts        Isolated session registry
+src/profiles/manager.ts        Existing Chrome profile metadata and selection proof
 src/pinboards/manager.ts       Pinboard persistence and panel data
 src/sync/manager.ts            Sync and export surfaces
 src/config/manager.ts          Settings

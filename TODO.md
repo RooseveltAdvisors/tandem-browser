@@ -4,7 +4,7 @@
 > Historical release summaries belong in `CHANGELOG.md`.
 > Architecture and product context belong in `PROJECT.md`.
 
-Last updated: August 16, 2026
+Last updated: August 27, 2026
 
 ## Purpose
 
