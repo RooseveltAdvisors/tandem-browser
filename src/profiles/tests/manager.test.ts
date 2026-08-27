@@ -70,6 +70,28 @@ describe('BrowserProfileManager', () => {
     expect(() => manager.select('RA')).toThrowError(/ambiguous/);
   });
 
+  it('ignores profile cache entries that are not real directories inside the root', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'tandem-profiles-'));
+    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'tandem-profile-outside-'));
+    temporaryRoots.push(root, outside);
+    fs.writeFileSync(path.join(root, 'Local State'), JSON.stringify({
+      profile: {
+        info_cache: {
+          'Profile 1': { name: 'File profile' },
+          'Profile 2': { name: 'Symlink profile' },
+        },
+      },
+    }));
+    fs.writeFileSync(path.join(root, 'Profile 1'), 'not a profile directory');
+    fs.mkdirSync(path.join(outside, 'Profile 2'));
+    fs.writeFileSync(path.join(outside, 'Profile 2', 'Preferences'), JSON.stringify({ profile: { name: 'Outside' } }));
+    fs.symlinkSync(path.join(outside, 'Profile 2'), path.join(root, 'Profile 2'), 'dir');
+
+    const profiles = new BrowserProfileManager({ chromeUserDataPath: root }).list();
+
+    expect(profiles).toEqual([]);
+  });
+
   it('reports unavailable profile storage without creating it', () => {
     const root = path.join(os.tmpdir(), `tandem-profiles-missing-${Date.now()}`);
     const manager = new BrowserProfileManager({ chromeUserDataPath: root });

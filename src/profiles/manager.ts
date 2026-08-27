@@ -65,7 +65,7 @@ export class BrowserProfileManager {
     const candidateDirectories = new Set<string>();
 
     for (const directory of Object.keys(profileInfoCache)) {
-      if (PROFILE_DIRECTORY_PATTERN.test(directory) && this.isProfileDirectory(directory)) {
+      if (PROFILE_DIRECTORY_PATTERN.test(directory) && this.resolveProfilePath(directory)) {
         candidateDirectories.add(directory);
       }
     }
@@ -145,8 +145,8 @@ export class BrowserProfileManager {
   }
 
   private readProfile(directory: string, cached: ProfileInfoCacheEntry | undefined, hasLocalState: boolean): BrowserProfile | null {
-    if (!this.isProfileDirectory(directory) || !this.chromeUserDataPath) return null;
-    const profilePath = path.join(this.chromeUserDataPath, directory);
+    const profilePath = this.resolveProfilePath(directory);
+    if (!profilePath) return null;
     const preferencesPath = path.join(profilePath, 'Preferences');
     const hasPreferences = fs.existsSync(preferencesPath);
     let name = typeof cached?.name === 'string' && cached.name.trim() ? cached.name.trim() : '';
@@ -177,11 +177,18 @@ export class BrowserProfileManager {
     };
   }
 
-  private isProfileDirectory(directory: string): boolean {
-    if (!this.chromeUserDataPath || !PROFILE_DIRECTORY_PATTERN.test(directory)) return false;
-    const root = path.resolve(this.chromeUserDataPath);
-    const profilePath = path.resolve(root, directory);
-    return profilePath.startsWith(`${root}${path.sep}`) && fs.existsSync(profilePath);
+  private resolveProfilePath(directory: string): string | null {
+    if (!this.chromeUserDataPath || !PROFILE_DIRECTORY_PATTERN.test(directory)) return null;
+    try {
+      const root = fs.realpathSync(this.chromeUserDataPath);
+      const profilePath = fs.realpathSync(path.join(root, directory));
+      if (!profilePath.startsWith(`${root}${path.sep}`) || !fs.statSync(profilePath).isDirectory()) {
+        return null;
+      }
+      return profilePath;
+    } catch {
+      return null;
+    }
   }
 }
 
