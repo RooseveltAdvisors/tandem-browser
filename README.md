@@ -70,6 +70,14 @@ Tandem Browser now supports:
 - remote HTTP over Tailscale
 - multiple agents connected to the same browser at once
 - in-product pairing and onboarding through **Settings -> Connected Agents**
+- metadata-only discovery and exact-name selection proof for existing Chrome
+  profiles through `GET /profiles`, `POST /profiles/select`, and
+  `tandem profile`
+
+The Chrome profile feature does not attach Tandem to an existing Chrome
+profile or provide authenticated control. Tandem reports the matched profile
+directory and its control boundary explicitly; its Electron webviews continue
+to use Tandem-owned sessions.
 
 Want the fastest path in?
 - **Try Tandem locally** -> [Quick Start](#quick-start)
@@ -378,7 +386,7 @@ contributors, not yet a polished mass-user release.
 - Supported platform: Windows 11 x64
 - Secondary platform: Linux
 - Binaries: signed and notarized macOS Apple Silicon builds plus unsigned Windows x64 installer/portable builds on [GitHub Releases](https://github.com/hydro13/tandem-browser/releases), starting with Windows in v1.10.0
-- Current version: `1.11.4`
+- Current version: `1.12.0`
 - Package metadata: [package.json](package.json)
 
 ## Community

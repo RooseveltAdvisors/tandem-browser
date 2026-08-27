@@ -70,6 +70,7 @@ Each module is a self-contained subsystem with its own manager.
 | `pinboards/` | `manager.ts` | Sidebar pinboards for saved items |
 | `pip/` | `manager.ts` | Picture-in-picture mode |
 | `preload/` | (multiple) | Preload scripts for webviews |
+| `profiles/` | `manager.ts` | Metadata-only discovery and exact-name selection proof for existing Chrome profiles |
 | `scripts/` | `injector.ts` | User script injection |
 | `security/` | `security-manager.ts`, (8 layers) | 8-layer security shield |
 | `session/` | (multiple) | Session persistence helpers |
@@ -89,7 +90,7 @@ Each module is a self-contained subsystem with its own manager.
 
 ### API Routes (src/api/routes/)
 
-21 route files, all following the `registerXRoutes(router, ctx)` pattern:
+24 route files, all following the `registerXRoutes(router, ctx)` pattern:
 
 | File | Endpoints | Domain |
 |------|-----------|--------|
@@ -108,6 +109,7 @@ Each module is a self-contained subsystem with its own manager.
 | `pairing.ts` | Setup codes, token exchange, bindings, whoami | Remote agent pairing |
 | `pinboards.ts` | Pinboard CRUD, items, settings | Sidebar pinboards |
 | `previews.ts` | Create/update live HTML previews | Agent previews |
+| `profiles.ts` | `/profiles`, `/profiles/select` | Chrome profile metadata and selection proof |
 | `sessions.ts` | Session CRUD, state save/load, fetch relay | Session isolation |
 | `sidebar.ts` | Sidebar config, state, activation, reorder | Sidebar management |
 | `snapshots.ts` | Accessibility tree, @ref click/fill/text | Snapshot interaction |

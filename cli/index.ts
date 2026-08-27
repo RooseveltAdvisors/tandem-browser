@@ -8,6 +8,7 @@ import { registerEval } from './commands/eval';
 import { registerScreenshot } from './commands/screenshot';
 import { registerCookies } from './commands/cookies';
 import { registerSession } from './commands/session';
+import { registerProfile } from './commands/profile';
 
 const program = new Command();
 
@@ -25,5 +26,6 @@ registerEval(program);
 registerScreenshot(program);
 registerCookies(program);
 registerSession(program);
+registerProfile(program);
 
 program.parse();

@@ -12,6 +12,7 @@ import { createActivityApi } from './activity';
 import { createBookmarksApi } from './bookmarks';
 import { createExtensionsApi } from './extensions';
 import { createWorkspacesApi } from './workspaces';
+import { createProfilesApi } from './profiles';
 import { createWindowApi } from './window';
 
 // Stamp the pre-paint theme on <html> before the shell document renders.
@@ -35,6 +36,7 @@ contextBridge.exposeInMainWorld('tandem', {
   ...createBookmarksApi(),
   ...createExtensionsApi(),
   ...createWorkspacesApi(),
+  ...createProfilesApi(),
   ...createWindowApi(),
 });
 function getInitialApiBaseUrl(): string {

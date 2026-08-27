@@ -2,6 +2,20 @@
 
 All notable changes to Tandem Browser will be documented in this file.
 
+## [v1.12.0] - 2026-08-27
+
+### Added
+
+- **Chrome profile discovery and selection proof** (`src/profiles/`, `/profiles`,
+  `tandem profile`) — discovers existing Chrome profiles from identity metadata
+  only and resolves exact names to their actual profile directories without
+  reading or copying cookies, local storage, passwords, or page contents.
+- **Profile control boundary reporting** — every selection result explicitly
+  reports `control.available: false` because
+  Electron's Tandem-owned webview partitions cannot safely attach to an existing
+  Chrome profile directory. This prevents labels or guessed session names from
+  being presented as authenticated profile control.
+
 ## [v1.11.4] - 2026-08-16
 
 ### Changed
