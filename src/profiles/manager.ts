@@ -49,7 +49,7 @@ export class BrowserProfileManager {
   inspect(): ProfileDiscoveryResult {
     const profiles = this.list();
     return {
-      available: this.chromeUserDataPath !== null && fs.existsSync(this.chromeUserDataPath),
+      available: this.getChromeRootPath() !== null,
       chromeUserDataPath: this.chromeUserDataPath,
       profiles,
       control: CONTROL_STATUS,
@@ -58,7 +58,8 @@ export class BrowserProfileManager {
 
   /** List profiles whose directories and identity metadata are present. */
   list(): BrowserProfile[] {
-    if (!this.chromeUserDataPath || !fs.existsSync(this.chromeUserDataPath)) return [];
+    const chromeRootPath = this.getChromeRootPath();
+    if (!chromeRootPath) return [];
 
     const localState = this.readLocalState();
     const profileInfoCache = this.getProfileInfoCache(localState);
@@ -71,7 +72,7 @@ export class BrowserProfileManager {
     }
 
     try {
-      for (const entry of fs.readdirSync(this.chromeUserDataPath, { withFileTypes: true })) {
+      for (const entry of fs.readdirSync(chromeRootPath, { withFileTypes: true })) {
         if (entry.isDirectory() && PROFILE_DIRECTORY_PATTERN.test(entry.name)) {
           candidateDirectories.add(entry.name);
         }
@@ -93,7 +94,7 @@ export class BrowserProfileManager {
       throw new BrowserProfileError('invalid-profile-name', 'Profile name must be a non-empty exact string');
     }
 
-    if (!this.chromeUserDataPath || !fs.existsSync(this.chromeUserDataPath)) {
+    if (!this.getChromeRootPath()) {
       throw new BrowserProfileError('profiles-unavailable', 'Chrome user-data directory is unavailable');
     }
 
@@ -120,15 +121,15 @@ export class BrowserProfileManager {
   }
 
   private readLocalState(): Record<string, unknown> | null {
-    if (!this.chromeUserDataPath) return null;
-    const localStatePath = path.join(this.chromeUserDataPath, 'Local State');
+    const chromeRootPath = this.getChromeRootPath();
+    if (!chromeRootPath) return null;
+    const localStatePath = this.getSafeMetadataPath(chromeRootPath, 'Local State');
+    if (!localStatePath) return null;
     try {
       const parsed: unknown = JSON.parse(fs.readFileSync(localStatePath, 'utf8'));
       return isRecord(parsed) ? parsed : null;
     } catch (error) {
-      if (fs.existsSync(localStatePath)) {
-        log.warn('Could not read Chrome Local State metadata:', error instanceof Error ? error.message : String(error));
-      }
+      log.warn('Could not read Chrome Local State metadata:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }
@@ -147,8 +148,10 @@ export class BrowserProfileManager {
   private readProfile(directory: string, cached: ProfileInfoCacheEntry | undefined, hasLocalState: boolean): BrowserProfile | null {
     const profilePath = this.resolveProfilePath(directory);
     if (!profilePath) return null;
-    const preferencesPath = path.join(profilePath, 'Preferences');
-    const hasPreferences = fs.existsSync(preferencesPath);
+    const chromeRootPath = this.getChromeRootPath();
+    if (!chromeRootPath) return null;
+    const preferencesPath = this.getSafeMetadataPath(profilePath, 'Preferences', chromeRootPath);
+    const hasPreferences = preferencesPath !== null;
     let name = typeof cached?.name === 'string' && cached.name.trim() ? cached.name.trim() : '';
     let metadataSource: BrowserProfile['metadataSource'] = name ? 'local-state' : 'directory';
 
@@ -180,15 +183,47 @@ export class BrowserProfileManager {
   private resolveProfilePath(directory: string): string | null {
     if (!this.chromeUserDataPath || !PROFILE_DIRECTORY_PATTERN.test(directory)) return null;
     try {
-      const root = fs.realpathSync(this.chromeUserDataPath);
+      const root = this.getChromeRootPath();
+      if (!root) return null;
       const profilePath = fs.realpathSync(path.join(root, directory));
-      if (!profilePath.startsWith(`${root}${path.sep}`) || !fs.statSync(profilePath).isDirectory()) {
+      if (!this.isContainedPath(root, profilePath) || !fs.statSync(profilePath).isDirectory()) {
         return null;
       }
       return profilePath;
     } catch {
       return null;
     }
+  }
+
+  private getChromeRootPath(): string | null {
+    if (!this.chromeUserDataPath) return null;
+    try {
+      const root = fs.realpathSync(this.chromeUserDataPath);
+      return fs.statSync(root).isDirectory() ? root : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private getSafeMetadataPath(
+    parentPath: string,
+    fileName: string,
+    chromeRootPath = parentPath,
+  ): string | null {
+    try {
+      const metadataPath = fs.realpathSync(path.join(parentPath, fileName));
+      if (!this.isContainedPath(chromeRootPath, metadataPath) || !fs.statSync(metadataPath).isFile()) {
+        return null;
+      }
+      return metadataPath;
+    } catch {
+      return null;
+    }
+  }
+
+  private isContainedPath(root: string, candidate: string): boolean {
+    const relative = path.relative(root, candidate);
+    return relative !== '' && !relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative);
   }
 }
 

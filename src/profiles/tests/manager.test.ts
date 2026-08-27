@@ -92,6 +92,37 @@ describe('BrowserProfileManager', () => {
     expect(profiles).toEqual([]);
   });
 
+  it('does not read metadata files through symlinks outside the root', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'tandem-profiles-'));
+    const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'tandem-profile-outside-'));
+    temporaryRoots.push(root, outside);
+    fs.mkdirSync(path.join(root, 'Profile 1'));
+    fs.writeFileSync(path.join(outside, 'Local State'), JSON.stringify({
+      profile: { info_cache: { 'Profile 1': { name: 'Outside Local State' } } },
+    }));
+    fs.symlinkSync(path.join(outside, 'Local State'), path.join(root, 'Local State'));
+    fs.writeFileSync(path.join(outside, 'Preferences'), JSON.stringify({ profile: { name: 'Outside Preferences' } }));
+    fs.symlinkSync(path.join(outside, 'Preferences'), path.join(root, 'Profile 1', 'Preferences'));
+
+    expect(new BrowserProfileManager({ chromeUserDataPath: root }).list()).toEqual([{
+      name: 'Profile 1',
+      directory: 'Profile 1',
+      profilePath: path.join(root, 'Profile 1'),
+      metadataSource: 'directory',
+      metadataFiles: { localState: false, preferences: false },
+    }]);
+  });
+
+  it('reports a file configured as the Chrome root as unavailable', () => {
+    const root = path.join(os.tmpdir(), `tandem-profile-file-${Date.now()}`);
+    temporaryRoots.push(root);
+    fs.writeFileSync(root, 'not a directory');
+    const manager = new BrowserProfileManager({ chromeUserDataPath: root });
+
+    expect(manager.inspect()).toMatchObject({ available: false, profiles: [] });
+    expect(() => manager.select('RA')).toThrowError(/unavailable/);
+  });
+
   it('reports unavailable profile storage without creating it', () => {
     const root = path.join(os.tmpdir(), `tandem-profiles-missing-${Date.now()}`);
     const manager = new BrowserProfileManager({ chromeUserDataPath: root });
