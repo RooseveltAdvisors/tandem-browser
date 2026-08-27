@@ -50,6 +50,7 @@ import type { ClipboardManager } from '../clipboard/manager';
 import type { GooglePhotosManager } from '../integrations/google-photos';
 import type { PairingManager } from '../pairing/manager';
 import type { CloudflarePolicyManager } from '../cloudflare/policy-manager';
+import type { BrowserProfileManager } from '../profiles/manager';
 
 export interface RuntimeManagers {
   configManager: ConfigManager;
@@ -88,6 +89,7 @@ export interface RuntimeManagers {
   networkMocker: NetworkMocker;
   sessionManager: SessionManager;
   stateManager: StateManager;
+  profileManager: BrowserProfileManager;
   scriptInjector: ScriptInjector;
   locatorFinder: LocatorFinder;
   deviceEmulator: DeviceEmulator;

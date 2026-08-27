@@ -25,6 +25,8 @@ import type { WingmanStream } from '../activity/wingman-stream';
 import type { SnapshotManager } from '../snapshot/manager';
 import type { VideoRecorderManager } from '../video/recorder';
 import type { WorkspaceManager } from '../workspaces/manager';
+import type { BrowserProfileManager } from '../profiles/manager';
+import { BrowserProfileError } from '../profiles/types';
 import { tandemDir } from '../utils/paths';
 import { createLogger } from '../utils/logger';
 import { IpcChannels } from '../shared/ipc-channels';
@@ -60,6 +62,7 @@ export interface IpcDeps {
   snapshotManager: SnapshotManager;
   videoRecorderManager: VideoRecorderManager;
   workspaceManager: WorkspaceManager;
+  profileManager: BrowserProfileManager;
 }
 
 /** Sync tab list into ContextBridge for live context summary */
@@ -76,7 +79,7 @@ export function registerIpcHandlers(deps: IpcDeps): void {
     taskManager, contextMenuManager, devToolsManager, activityTracker,
     securityManager, scriptInjector, deviceEmulator, wingmanStream: _wingmanStream,
     snapshotManager: _snapshotManager,
-    videoRecorderManager, workspaceManager,
+    videoRecorderManager, workspaceManager, profileManager,
   } = deps;
 
   // ═══ IPC Handler Cleanup — prevent duplicates on macOS reactivation ═══
@@ -126,10 +129,28 @@ export function registerIpcHandlers(deps: IpcDeps): void {
     IpcChannels.START_RECORDING,
     IpcChannels.STOP_RECORDING,
     IpcChannels.GET_DESKTOP_SOURCE,
+    IpcChannels.PROFILE_LIST,
+    IpcChannels.PROFILE_SELECT,
   ];
   for (const handler of ipcHandlers) {
     try { ipcMain.removeHandler(handler); } catch { /* handler may not exist yet */ }
   }
+
+  ipcMain.handle(IpcChannels.PROFILE_LIST, () => profileManager.inspect());
+  ipcMain.handle(IpcChannels.PROFILE_SELECT, (_event, name: unknown) => {
+    try {
+      if (typeof name !== 'string') {
+        throw new Error('Profile name must be a string');
+      }
+      return { ok: true, selection: profileManager.select(name) };
+    } catch (error) {
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+        code: error instanceof BrowserProfileError ? error.code : undefined,
+      };
+    }
+  });
 
   // ═══ Wingman re-alert — escalation + user-return ping ═══
   // Shell calls this when an unacknowledged handoff escalates past its

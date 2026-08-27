@@ -53,6 +53,7 @@ import type { ClipboardManager } from './clipboard/manager';
 import type { GooglePhotosManager } from './integrations/google-photos';
 import type { PairingManager } from './pairing/manager';
 import type { CloudflarePolicyManager } from './cloudflare/policy-manager';
+import type { BrowserProfileManager } from './profiles/manager';
 
 export interface ManagerRegistry {
   /** Tab lifecycle, grouping, metadata, and focus tracking. See src/tabs/manager.ts */
@@ -129,6 +130,8 @@ export interface ManagerRegistry {
   sessionManager: SessionManager;
   /** Saves and loads session state (cookies) to disk with encryption. See src/sessions/state.ts */
   stateManager: StateManager;
+  /** Read-only discovery and exact-name selection proof for existing Chrome profiles. See src/profiles/manager.ts */
+  profileManager: BrowserProfileManager;
   /** Persistent JavaScript and CSS injection into pages. See src/scripts/injector.ts */
   scriptInjector: ScriptInjector;
   /** Finds elements by semantic locators (role, text, label, placeholder). See src/locators/finder.ts */

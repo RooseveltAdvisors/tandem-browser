@@ -559,6 +559,12 @@ export function createMockContext(): RouteContext {
       resolvePartition: vi.fn().mockReturnValue('persist:test'),
     } as any,
 
+    // ── profileManager ──────────────────────────
+    profileManager: {
+      inspect: vi.fn().mockReturnValue({ available: false, chromeUserDataPath: null, profiles: [], control: { available: false, reason: 'test' } }),
+      select: vi.fn(),
+    } as any,
+
     // ── stateManager ────────────────────────────
     stateManager: {
       save: vi.fn().mockResolvedValue('/path/to/state'),

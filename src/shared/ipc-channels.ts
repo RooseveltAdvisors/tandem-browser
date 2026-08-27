@@ -33,6 +33,8 @@ export const IpcChannels = {
   TAB_UPDATE: 'tab-update',
   TAB_REGISTER: 'tab-register',
   TAB_REGISTERED: 'tab-registered',
+  PROFILE_LIST: 'profile-list',
+  PROFILE_SELECT: 'profile-select',
   TAB_SOURCE_CHANGED: 'tab-source-changed',
   TAB_PIN_CHANGED: 'tab-pin-changed',
   TAB_EMOJI_CHANGED: 'tab-emoji-changed',

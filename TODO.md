@@ -14,7 +14,7 @@ Last updated: August 16, 2026
 
 ## Current Snapshot
 
-- Current app version: `1.11.4`
+- Current app version: `1.12.0`
 - MCP server: 257 tools (full API parity + awareness)
 - The codebase scope is larger than this backlog summary and includes major subsystems such as `sidebar`, `workspaces`, `pinboards`, `sync`, `headless`, and `sessions`.
 - Scheduled browsing already exists in baseline form via `WatchManager` and the `/watch/*` API routes.
@@ -36,6 +36,7 @@ Last updated: August 16, 2026
 - [x] Configurable diff modes for watches beyond SHA-256 hash comparison
 - [x] HAR export for the network inspector
 - [ ] Design and build the `Personal News` experience; the sidebar currently has a placeholder slot, but the actual panel and feed model are not implemented yet
+- [x] Add metadata-only exact-name discovery and selection proof for existing Chrome profiles; direct control remains blocked by the Electron/Chromium profile boundary
 - [x] Built-in video recorder with Application and Region capture modes, tab audio + mic toggle, MP4 output via ffmpeg; replaces AudioCaptureManager
 - [ ] Windows video recorder: find a proven system-audio capture path for the current `ffmpeg-static` binary or switch to an approved ffmpeg build strategy; Phase 11 proved DirectShow microphone capture works, but this machine has no DirectShow loopback/system-audio device and the bundled binary has no WASAPI input.
 - [ ] Linux video recorder: implement desktop audio capture via PulseAudio/Pipewire monitor sources; current implementation captures mic audio but not webview/tab audio due to Electron process isolation limitations on Linux

@@ -44,6 +44,7 @@ import { SecurityManager, type SecurityContainmentIncident } from '../security/s
 import { SessionRestoreManager } from '../session/restore';
 import { SessionManager } from '../sessions/manager';
 import { StateManager } from '../sessions/state';
+import { BrowserProfileManager } from '../profiles/manager';
 import { SidebarManager } from '../sidebar/manager';
 import { SnapshotManager } from '../snapshot/manager';
 import { SyncManager } from '../sync/manager';
@@ -262,6 +263,7 @@ export async function initializeRuntimeManagers(opts: InitializeRuntimeOptions):
   runtime.networkMocker = new NetworkMocker(runtime.devToolsManager);
   runtime.sessionManager = new SessionManager();
   runtime.stateManager = new StateManager();
+  runtime.profileManager = new BrowserProfileManager();
   runtime.scriptInjector = new ScriptInjector();
   runtime.locatorFinder = new LocatorFinder(runtime.devToolsManager, runtime.snapshotManager);
   runtime.deviceEmulator = new DeviceEmulator();
@@ -474,6 +476,7 @@ export function createManagerRegistry(runtime: RuntimeManagers): ManagerRegistry
     networkMocker: runtime.networkMocker,
     sessionManager: runtime.sessionManager,
     stateManager: runtime.stateManager,
+    profileManager: runtime.profileManager,
     scriptInjector: runtime.scriptInjector,
     locatorFinder: runtime.locatorFinder,
     deviceEmulator: runtime.deviceEmulator,
@@ -515,6 +518,7 @@ export function registerRuntimeIpcHandlers(win: BrowserWindow, runtime: RuntimeM
     snapshotManager: runtime.snapshotManager,
     videoRecorderManager: runtime.videoRecorderManager,
     workspaceManager: runtime.workspaceManager,
+    profileManager: runtime.profileManager,
   });
 }
 

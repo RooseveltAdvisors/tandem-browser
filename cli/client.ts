@@ -1,8 +1,44 @@
 import fs from 'fs';
-import { buildLocalApiBaseUrl, readApiPortFromBootstrap } from '../src/config/api-endpoints';
-import { tandemDir } from '../src/utils/paths';
+import os from 'os';
+import path from 'path';
 
-const API_BASE = process.env.TANDEM_API || buildLocalApiBaseUrl(readApiPortFromBootstrap());
+const API_PORT = 8765;
+
+function tandemDir(...subpath: string[]): string {
+  const base = process.platform === 'darwin'
+    ? path.join(os.homedir(), 'Library', 'Application Support', 'Tandem Browser')
+    : process.platform === 'win32'
+      ? path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'Tandem Browser')
+      : path.join(os.homedir(), '.tandem');
+  return path.join(base, ...subpath);
+}
+
+function readApiPortFromBootstrap(): number {
+  const envPort = process.env.TANDEM_API_PORT;
+  if (envPort && /^\d+$/.test(envPort.trim())) {
+    const port = Number(envPort.trim());
+    if (port >= 1 && port <= 65535) return port;
+  }
+
+  const portPath = tandemDir('api-port');
+  try {
+    const port = Number(fs.readFileSync(portPath, 'utf8').trim());
+    if (Number.isInteger(port) && port >= 1 && port <= 65535) return port;
+  } catch {
+    // Fall back to config/default when the bootstrap file is absent.
+  }
+
+  try {
+    const config = JSON.parse(fs.readFileSync(tandemDir('config.json'), 'utf8')) as { general?: { apiPort?: unknown } };
+    const port = Number(config.general?.apiPort);
+    if (Number.isInteger(port) && port >= 1 && port <= 65535) return port;
+  } catch {
+    // Fall back to the default port when config is absent or invalid.
+  }
+  return API_PORT;
+}
+
+const API_BASE = process.env.TANDEM_API || `http://127.0.0.1:${readApiPortFromBootstrap()}`;
 const TOKEN_PATH = tandemDir('api-token');
 
 function getToken(): string {
