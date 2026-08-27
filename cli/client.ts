@@ -6,7 +6,7 @@ const API_PORT = 8765;
 
 function tandemDir(...subpath: string[]): string {
   const base = process.platform === 'darwin'
-    ? path.join(os.homedir(), 'Library', 'Application Support', 'Tandem Browser')
+    ? path.join(os.homedir(), '.tandem')
     : process.platform === 'win32'
       ? path.join(process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'Tandem Browser')
       : path.join(os.homedir(), '.tandem');
